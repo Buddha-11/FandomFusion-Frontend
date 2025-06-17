@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { validateEmail, validatePassword, validateConfirmPassword } from '../utils/utils_signup'; // Import validation functions
+import { validateEmail, validatePassword, validateConfirmPassword } from '../utils/utils_signup';
 import axios from "axios";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; 
-import { text } from 'framer-motion/client';
+import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -13,132 +12,114 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
 
-  // Handle form submission
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate the form
     const newErrors = {};
-
-    // Validate email
     const emailError = validateEmail(email);
     if (emailError) newErrors.email = emailError;
 
-    // Validate password
     const passwordError = validatePassword(password);
     if (passwordError) newErrors.password = passwordError;
 
-    // Validate confirm password
     const confirmPasswordError = validateConfirmPassword(password, confirmPassword);
     if (confirmPasswordError) newErrors.confirmPassword = confirmPasswordError;
 
-    // If there are errors, set them in state
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-    } else {
-      // Proceed with form submission if no errors (e.g., API call or routing)
-      console.log('Form submitted');
+      return;
     }
 
     try {
-
       const response = await axios.post(`http://localhost:4000/api/v1/auth/register`, {
         email,
         username,
-        password,
-        confirmPassword
+        password
       });
 
-      console.log(response.data);
-      // Handle success response
-      if(response.data.status === "Ok"){
-        toast.success("Signup successful! You can now log in."); // Success toast
-        console.log("Signup Succcessfull");
+      if (response.data.status === "Ok") {
+        toast.success("Signup successful! You can now log in.");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Signup failed. Please try again."); // Error toast
+      toast.error(error.response?.data?.message || "Signup failed. Please try again.");
       console.error(error);
     }
-      }
+  };
 
   return (
-    <div className='h-screen w-screen flex justify-center items-center bg-slate-800'>
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl overflow-hidden border-4 border-blue-400 dark:border-blue-800">
-        <div className="px-8 py-10 md:px-10">
-          <h2 className="text-4xl font-extrabold text-center text-zinc-800 dark:text-white">Hello There!</h2>
-          <p className="text-center text-zinc-600 dark:text-zinc-400 mt-3">Welcome to this new journey</p>
-          <div className="mt-10">
-            <div className="relative">
-              <label className="block mb-3 text-sm font-medium text-zinc-600 dark:text-zinc-200" htmlFor="signup-email">Email</label>
-              <input
-                placeholder="you@example.com"
-                className="block w-full px-4 py-3 mt-2 text-zinc-800 bg-white border-2 rounded-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-opacity-50 focus:outline-none focus:ring focus:ring-blue-400"
-                name="email"
-                id="signup-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-            </div>
-            <div className="mt-6">
-              <label className="block mb-3 text-sm font-medium text-zinc-600 dark:text-zinc-200" htmlFor="signup-username">Username</label>
-              <input
-                placeholder="yourusername"
-                className="block w-full px-4 py-3 mt-2 text-zinc-800 bg-white border-2 rounded-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-opacity-50 focus:outline-none focus:ring focus:ring-blue-400"
-                name="username"
-                id="signup-username"
-                type="text"
-                value={username} // Use the correct state variable
-                onChange={(e) => setUsername(e.target.value)} // Update the username state
-              />
-              {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>} {/* Display the appropriate error */}
-            </div>
-            <div className="mt-6">
-              <label className="block mb-3 text-sm font-medium text-zinc-600 dark:text-zinc-200" htmlFor="signup-password">Password</label>
-              <input
-                placeholder="••••••••"
-                className="block w-full px-4 py-3 mt-2 text-zinc-800 bg-white border-2 rounded-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-opacity-50 focus:outline-none focus:ring focus:ring-blue-400"
-                name="password"
-                id="signup-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-            </div>
-            <div className="mt-6">
-              <label className="block mb-3 text-sm font-medium text-zinc-600 dark:text-zinc-200" htmlFor="signup-confirm-password">Confirm Password</label>
-              <input
-                placeholder="••••••••"
-                className="block w-full px-4 py-3 mt-2 text-zinc-800 bg-white border-2 rounded-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-opacity-50 focus:outline-none focus:ring focus:ring-blue-400"
-                name="confirmPassword"
-                id="signup-confirm-password"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
-            </div>
-            <div className="mt-10">
-              <button
-                className="w-full px-4 py-3 tracking-wide text-white transition-colors duration-200 transform bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-4 focus:ring-blue-400 dark:focus:ring-blue-800"
-                type="submit"
-              >
-                Let's Go
-              </button>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center p-4">
+      <form onSubmit={handleSubmit} className="bg-gray-800/50 backdrop-blur-sm border border-blue-500/20 rounded-xl shadow-2xl max-w-md w-full p-8 space-y-6">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-2">Create Your Account</h2>
+          <p className="text-blue-300">Join the fandom community today</p>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block mb-1 text-sm text-blue-300">Email</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 rounded-lg border border-blue-500/30 bg-gray-700/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400/30"
+            />
+            {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
+          </div>
+
+          <div>
+            <label className="block mb-1 text-sm text-blue-300">Username</label>
+            <input
+              type="text"
+              placeholder="yourusername"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full p-3 rounded-lg border border-blue-500/30 bg-gray-700/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400/30"
+            />
+            {errors.username && <p className="text-red-400 text-sm mt-1">{errors.username}</p>}
+          </div>
+
+          <div>
+            <label className="block mb-1 text-sm text-blue-300">Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 rounded-lg border border-blue-500/30 bg-gray-700/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400/30"
+            />
+            {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password}</p>}
+          </div>
+
+          <div>
+            <label className="block mb-1 text-sm text-blue-300">Confirm Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full p-3 rounded-lg border border-blue-500/30 bg-gray-700/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400/30"
+            />
+            {errors.confirmPassword && <p className="text-red-400 text-sm mt-1">{errors.confirmPassword}</p>}
           </div>
         </div>
-        <div className="px-8 py-4 bg-blue-200 dark:bg-zinc-800">
-          <div className="text-sm text-blue-900 dark:text-blue-300 text-center">
-            Already have an account? <Link to="/Auth" className="font-medium underline">Sign In</Link>
-          </div>
+
+        <button
+          type="submit"
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+        >
+          Let&apos;s Go 🚀
+        </button>
+
+        <div className="text-sm text-center text-blue-300 mt-4">
+          Already have an account?{" "}
+          <Link to="/Auth" className="font-medium underline hover:text-blue-400">
+            Sign In
+          </Link>
         </div>
       </form>
     </div>
   );
 };
-
 
 export default Signup;
