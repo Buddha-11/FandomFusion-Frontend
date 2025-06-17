@@ -20,6 +20,7 @@
 		"react-scroll": "^1.9.0",
 		"react-toastify": "^11.0.2",
 		"react-transition-group": "^4.4.5",
+		"socket.io-client": "^4.8.1",
 		"vite-project": "file:"
 	},
 	"devDependencies": {
