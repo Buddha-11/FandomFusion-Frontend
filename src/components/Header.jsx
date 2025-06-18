@@ -1,18 +1,24 @@
 import { useState, useContext } from "react";
-import { FaBars, FaUserCircle, FaUserAlt, FaSignOutAlt, FaSearch } from "react-icons/fa";
+import {
+  FaBars,
+  FaUserCircle,
+  FaUserAlt,
+  FaSignOutAlt,
+  FaSearch,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { AuthContext } from "../context/authContext"; // Import the AuthContext
+import { AuthContext } from "../context/authContext";
 
 const Header = ({ toggleSidebar }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const { user, logout } = useContext(AuthContext); // Access user and logout from context
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
 
   const handleLogout = () => {
-    logout(); // Call the logout function from AuthContext
+    logout();
     navigate("/auth");
   };
 
@@ -21,24 +27,30 @@ const Header = ({ toggleSidebar }) => {
   };
 
   return (
-    <header className="bg-blue-600 p-4 text-white flex items-center relative">
-      {/* Sidebar Toggle Button */}
+    <header className="fixed top-0 left-0 w-full z-50 bg-gray-900/80 backdrop-blur border-b border-blue-500/20 px-4 py-3 text-white flex items-center shadow-sm">
+      {/* Sidebar Toggle for mobile */}
       <div className="md:hidden flex-none">
-        <button aria-label="Toggle sidebar" onClick={toggleSidebar}>
+        <button
+          aria-label="Toggle sidebar"
+          onClick={toggleSidebar}
+          className="hover:text-blue-400 transition"
+        >
           <FaBars size={24} />
         </button>
       </div>
 
-      {/* Header Title */}
-      <h1 className="text-2xl font-bold text-center flex-grow">Fandom Fusion</h1>
+      {/* App Title */}
+      <h1 className="text-2xl font-bold text-center flex-grow">
+        Fandom Fusion
+      </h1>
 
-      {/* Search Icon */}
+      {/* Search Button */}
       <button
         aria-label="Search"
         onClick={handleSearchNavigate}
-        className="flex items-center space-x-2 mr-12"
+        className="mr-8 hover:text-blue-400 transition"
       >
-        <FaSearch size={24} />
+        <FaSearch size={22} />
       </button>
 
       {/* Profile Dropdown */}
@@ -46,7 +58,7 @@ const Header = ({ toggleSidebar }) => {
         <button
           onClick={toggleDropdown}
           aria-label="Open profile menu"
-          className="flex items-center space-x-2"
+          className="flex items-center hover:text-blue-400 transition"
         >
           <FaUserCircle size={24} />
         </button>
@@ -54,21 +66,21 @@ const Header = ({ toggleSidebar }) => {
         <AnimatePresence>
           {isDropdownOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute right-0 mt-2 bg-white text-black shadow-lg rounded-lg z-50"
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute right-0 mt-3 w-48 bg-gray-800 border border-blue-500/20 rounded-lg shadow-xl z-50 overflow-hidden"
             >
-              <ul>
-                <li className="flex items-center px-4 py-4 hover:bg-blue-500 hover:text-white cursor-pointer">
-                  <FaUserAlt className="mr-4" size={16} />
-                  {user ? user.username : "Profile"} {/* Display username or default */}
+              <ul className="divide-y divide-blue-500/10">
+                <li className="flex items-center px-4 py-3 hover:bg-blue-600 hover:text-white cursor-pointer transition">
+                  <FaUserAlt className="mr-3" size={16} />
+                  {user ? user.username : "Profile"}
                 </li>
                 <li
-                  className="flex items-center px-4 py-4 hover:bg-blue-500 hover:text-white cursor-pointer"
                   onClick={handleLogout}
+                  className="flex items-center px-4 py-3 hover:bg-blue-600 hover:text-white cursor-pointer transition"
                 >
-                  <FaSignOutAlt className="mr-4" size={16} />
+                  <FaSignOutAlt className="mr-3" size={16} />
                   Logout
                 </li>
               </ul>

@@ -1,16 +1,22 @@
 // src/components/Sidebar.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaFilm, FaGamepad, FaUserAlt } from 'react-icons/fa'; // Example icons
+import { FaHome, FaFilm, FaGamepad, FaUserAlt,FaSearch,FaComments } from 'react-icons/fa'; // Example icons
 
 const Sidebar = () => {
   return (
-    <div className="bg-gray-800 text-white w-64 p-4 space-y-4">
+    <div className="fixed pt-10 bg-gray-800 text-white w-64 p-4 space-y-4 ">
       <ul className="space-y-4">
         <li>
           <Link to="/" className="flex items-center space-x-2 hover:bg-blue-600 p-2 rounded">
             <FaHome />
             <span>Home</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/search" className="flex items-center space-x-2 hover:bg-blue-600 p-2 rounded">
+           <FaSearch />
+            <span>Search</span>
           </Link>
         </li>
         <li>
@@ -35,6 +41,12 @@ const Sidebar = () => {
           <Link to="/profile" className="flex items-center space-x-2 hover:bg-blue-600 p-2 rounded">
             <FaUserAlt />
             <span>Profile</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/chat" className="flex items-center space-x-2 hover:bg-blue-600 p-2 rounded">
+            <FaComments />
+            <span>Friends</span>
           </Link>
         </li>
       </ul>

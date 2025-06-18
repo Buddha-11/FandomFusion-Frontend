@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { Search as SearchIcon, Plus, X } from "lucide-react";
 import SearchCard from "../components/SearchCard";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import { AnimatePresence, motion } from "framer-motion";
 
 const SearchPage = () => {
   const [query, setQuery] = useState("");
@@ -9,32 +14,30 @@ const SearchPage = () => {
   const [error, setError] = useState("");
   const [activeSection, setActiveSection] = useState("Anime");
 
-  // ✅ Modal states
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [userStatus, setUserStatus] = useState("");
   const [userRating, setUserRating] = useState(0);
 
-  // ✅ Allowed statuses from your Mongoose schema:
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+
+  const navigate = useNavigate();
+
   const statusOptions = {
     Anime: ["Planning to Watch", "Watching", "Completed", "On Hold"],
     Movie: ["Planning to Watch", "Watching", "Completed", "On Hold"],
     Game: ["Planning to Play", "Playing", "Completed", "On Hold"],
   };
 
-  const getAuthToken = () => {
-    return localStorage.getItem("authToken");
-  };
+  const getAuthToken = () => localStorage.getItem("authToken");
 
-  // ✅ Open modal with the right default status
   const openAddModal = (item) => {
     setSelectedItem(item);
-    setUserStatus(statusOptions[activeSection][0]); // always valid
+    setUserStatus(statusOptions[activeSection][0]);
     setUserRating(0);
     setShowModal(true);
   };
 
-  // ✅ Confirm add using modal data
   const handleAddToList = async () => {
     const AUTH_TOKEN = getAuthToken();
     if (!AUTH_TOKEN) {
@@ -43,15 +46,7 @@ const SearchPage = () => {
     }
 
     const type = activeSection.toLowerCase();
-    let endpoint = "";
-
-    if (type === "anime") {
-      endpoint = "http://localhost:4000/api/v1/lists/anime/add";
-    } else if (type === "game") {
-      endpoint = "http://localhost:4000/api/v1/lists/game/add";
-    } else if (type === "movie") {
-      endpoint = "http://localhost:4000/api/v1/lists/movie/add";
-    }
+    const endpoint = `http://localhost:4000/api/v1/list/${type}/add`;
 
     try {
       const payload = {
@@ -61,9 +56,7 @@ const SearchPage = () => {
       };
 
       await axios.post(endpoint, payload, {
-        headers: {
-          Authorization: `Bearer ${AUTH_TOKEN}`,
-        },
+        headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
       });
 
       alert(`✅ ${type.charAt(0).toUpperCase() + type.slice(1)} added successfully!`);
@@ -72,6 +65,15 @@ const SearchPage = () => {
       console.error(err);
       alert(`❌ Failed to add ${type}.`);
     }
+  };
+
+  const handleCreatePost = (item) => {
+    const params = new URLSearchParams({
+      type: activeSection.toLowerCase(),
+      publicDbId: item.publicDbId,
+      imageUrl: activeSection.toLowerCase() === "anime" ? item.imageUrl : item.imgUrl,
+    });
+    navigate(`/create-post?${params.toString()}`);
   };
 
   const handleSearch = async () => {
@@ -97,134 +99,171 @@ const SearchPage = () => {
           : `http://localhost:4000/api/v1/media/${activeSection.toLowerCase()}/search?search=${encodeURIComponent(query)}`;
 
       const response = await axios.get(baseEndpoint, {
-        headers: {
-          Authorization: `Bearer ${AUTH_TOKEN}`,
-        },
+        headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
       });
 
-      if (response.data && response.data.data && response.data.data.length > 0) {
+      if (response.data?.data?.length > 0) {
         setResults(response.data.data);
       } else {
         setError("No results found.");
       }
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        setError("Unauthorized: Please check your credentials.");
-      } else {
-        setError("Something went wrong. Please try again later.");
-      }
+      console.error(err);
+      setError("Something went wrong. Please try again later.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
+    if (e.key === "Enter") handleSearch();
   };
 
   const sections = ["Anime", "Movie", "Game"];
 
+  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+
   return (
-    <div className="p-6 bg-blue-50 min-h-screen">
-      <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-7">
-        <h1 className="text-2xl font-bold text-center mb-4">Search Your Fandom</h1>
+    <div className="pt-10 flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+      {/* ✅ Header */}
+      <Header toggleSidebar={toggleSidebar} />
 
-        <div className="flex justify-center space-x-4 mb-6">
-          {sections.map((section) => (
-            <button
-              key={section}
-              className={`px-4 py-2 rounded-lg ${
-                activeSection === section
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-600"
-              } hover:bg-blue-500 hover:text-white transition duration-300`}
-              onClick={() => setActiveSection(section)}
+      <div className="flex flex-grow relative">
+        {/* ✅ Mobile Sidebar */}
+        <AnimatePresence>
+          {isSidebarOpen && (
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed top-16 left-0 z-50 w-64 bg-gray-800/90 backdrop-blur border-r border-blue-500/30 min-h-screen md:hidden"
             >
-              {section}
-            </button>
-          ))}
+              <Sidebar />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={toggleSidebar}
+          ></div>
+        )}
+
+        {/* ✅ Sidebar for md+ */}
+        <div className="hidden md:block w-64 bg-gray-800/90 backdrop-blur border-r border-blue-500/30">
+          <Sidebar />
         </div>
 
-        <div className="flex items-center space-x-4">
-          <input
-            type="text"
-            placeholder={`Search for ${activeSection.toLowerCase()}...`}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="w-full p-4 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-          />
-          <button
-            onClick={handleSearch}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300"
-          >
-            Search
-          </button>
-        </div>
-
-        {isLoading && (
-          <div className="flex justify-center items-center mt-6">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-blue-500"></div>
+        {/* ✅ Main Content */}
+        <main className="flex-1 p-6 md:p-8 max-w-6xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-white mb-2">Discover & Add</h1>
+            <p className="text-blue-300">Search and manage your fandom lists</p>
           </div>
-        )}
 
-        {error && !isLoading && (
-          <p className="text-red-500 text-center mt-6">{error}</p>
-        )}
-
-        {!isLoading && results.length > 0 && (
-          <h2 className="text-2xl font-semibold text-gray-800 mt-6">
-            {activeSection} results for:{" "}
-            <span className="text-blue-600">{query}</span>
-          </h2>
-        )}
-
-        {!isLoading && results.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
-            {results.map((item) => (
-              <SearchCard
-                key={item.publicDbId}
-                image={
-                  activeSection.toLowerCase() === "anime"
-                    ? item.imageUrl || "https://via.placeholder.com/150"
-                    : item.imgUrl || "https://via.placeholder.com/150"
-                }
-                title={
-                  activeSection.toLowerCase() === "anime"
-                    ? item.title_english || item.title
-                    : item.title
-                }
-                rating={item.score || "N/A"}
-                onAddClick={() => openAddModal(item)}
-              />
+          {/* Section Toggle */}
+          <div className="flex flex-wrap gap-4 mb-8">
+            {sections.map((section) => (
+              <button
+                key={section}
+                className={`px-5 py-3 rounded-lg font-medium transition-colors ${
+                  activeSection === section
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-700/50 text-gray-300 hover:bg-blue-500/20"
+                }`}
+                onClick={() => setActiveSection(section)}
+              >
+                {section}
+              </button>
             ))}
           </div>
-        )}
 
-        {!isLoading && !error && results.length === 0 && query && (
-          <p className="text-gray-600 text-center mt-6">No results found.</p>
-        )}
+          {/* Search Bar */}
+          <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
+            <input
+              type="text"
+              placeholder={`Search for ${activeSection.toLowerCase()}...`}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="flex-1 p-4 rounded-lg border border-blue-500/30 bg-gray-700/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400/30"
+            />
+            <button
+              onClick={handleSearch}
+              className="flex items-center gap-2 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+            >
+              <SearchIcon className="w-5 h-5" />
+              Search
+            </button>
+          </div>
+
+          {/* Loader */}
+          {isLoading && (
+            <div className="flex justify-center mt-6">
+              <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+            </div>
+          )}
+
+          {/* Error */}
+          {error && !isLoading && (
+            <p className="text-red-400 text-center mt-6">{error}</p>
+          )}
+
+          {/* Results */}
+          {!isLoading && results.length > 0 && (
+            <>
+              <h2 className="text-2xl font-semibold text-white mb-4">
+                {activeSection} results for:{" "}
+                <span className="text-blue-400">{query}</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {results.map((item) => (
+                  <SearchCard
+                    key={item.publicDbId}
+                    image={
+                      activeSection.toLowerCase() === "anime"
+                        ? item.imageUrl || "https://via.placeholder.com/150"
+                        : item.imgUrl || "https://via.placeholder.com/150"
+                    }
+                    title={
+                      activeSection.toLowerCase() === "anime"
+                        ? item.title_english || item.title
+                        : item.title
+                    }
+                    rating={item.score || "N/A"}
+                    onAddClick={() => openAddModal(item)}
+                    onCreatePostClick={() => handleCreatePost(item)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          {!isLoading && !error && results.length === 0 && query && (
+            <p className="text-gray-400 text-center mt-6">No results found.</p>
+          )}
+        </main>
       </div>
 
-      {/* ✅ MODAL */}
+      {/* ✅ Add Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h2 className="text-xl font-bold mb-4">Add to List</h2>
-            <label className="block mb-2">Status:</label>
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-gray-800/90 backdrop-blur-sm border border-blue-500/30 rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-4">Add to {activeSection} List</h2>
+            <label className="block text-sm text-blue-300 mb-2">Status:</label>
             <select
               value={userStatus}
               onChange={(e) => setUserStatus(e.target.value)}
-              className="w-full border p-2 rounded mb-4"
+              className="w-full p-3 rounded-lg border border-blue-500/30 bg-gray-700/50 text-white mb-4"
             >
               {statusOptions[activeSection].map((option) => (
                 <option key={option} value={option}>{option}</option>
               ))}
             </select>
 
-            <label className="block mb-2">Your Rating (0-10):</label>
+            <label className="block text-sm text-blue-300 mb-2">Your Rating (0-10):</label>
             <input
               type="number"
               min="0"
@@ -232,20 +271,22 @@ const SearchPage = () => {
               step="1"
               value={userRating}
               onChange={(e) => setUserRating(e.target.value)}
-              className="w-full border p-2 rounded mb-4"
+              className="w-full p-3 rounded-lg border border-blue-500/30 bg-gray-700/50 text-white mb-4"
             />
 
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded"
+                className="px-5 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium flex items-center gap-2"
               >
+                <X className="w-4 h-4" />
                 Cancel
               </button>
               <button
                 onClick={handleAddToList}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2"
               >
+                <Plus className="w-4 h-4" />
                 Confirm
               </button>
             </div>

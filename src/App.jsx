@@ -10,6 +10,11 @@ import ResetPassword from './pages/ResetPassword.jsx';
 import Signup from './pages/Signup.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import Search from './pages/SearchPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import Chat from './pages/Chat.jsx';
+import GameList from './pages/GameList.jsx';
+import AnimeList from './pages/AnimeList.jsx';
+import CreatePost from './pages/CreatePost.jsx';
 import { AuthProvider } from './context/authContext.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -40,7 +45,11 @@ const MainContent = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/search" element={<Search />} />
-
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/games" element={<GameList />} />
+          <Route path="/anime" element={<AnimeList />} />
+          <Route path="/create-post" element={<CreatePost />} />
           {/* Default Route: Redirect based on authentication */}
           <Route
             path="/"

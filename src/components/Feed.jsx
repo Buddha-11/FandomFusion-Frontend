@@ -1,99 +1,124 @@
-import React from 'react';
-import { FaThumbsUp, FaComment, FaShare, FaFilm, FaGamepad, FaTv } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import {
+  FaThumbsUp,
+  FaComment,
+  FaShare,
+  FaFilm,
+  FaGamepad,
+  FaTv,
+} from 'react-icons/fa';
 
-const Feed = () => {
-  // Sample posts data
-  const posts = [
-    {
-      id: 1,
-      username: 'JohnDoe123',
-      title: 'The Grand Adventure',
-      mediaType: 'Movie',
-      description: 'An epic tale of heroism and bravery.',
-      profilePic: 'https://cdn-icons-png.freepik.com/512/4209/4209019.png',
-    },
-    {
-      id: 2,
-      username: 'AnimeLover98',
-      title: 'Journey to the Unknown',
-      mediaType: 'Anime',
-      description: 'A breathtaking anime filled with twists and turns.',
-      profilePic: 'https://cdn-icons-png.freepik.com/512/4209/4209019.png',
-      image: 'https://wallpapers.com/images/high/blue-boy-6klqmipm5nq8f6pu.webp',
-    },
-    {
-      id: 3,
-      username: 'GamerPro',
-      title: 'Virtual Showdown',
-      mediaType: 'Game',
-      description: 'An intense game that will keep you on the edge of your seat.',
-      profilePic: 'https://cdn-icons-png.freepik.com/512/4209/4209019.png',
-    },
-  ];
+const Feed = ({ type = "global" }) => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Map media types to corresponding icons
-  const mediaTypeIcons = {
-    Movie: <FaFilm className="text-green-500" />,
-    Anime: <FaTv className="text-green-500" />,
-    Game: <FaGamepad className="text-green-500" />,
+  const token = localStorage.getItem("authToken");
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await axios.get(`http://localhost:4000/api/v1/post/${type}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setPosts(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load feed. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchPosts();
+  }, [type]);
+
+  const mediaTypeIcons = {
+    Movie: <FaFilm className="text-green-400" />,
+    Anime: <FaTv className="text-green-400" />,
+    Game: <FaGamepad className="text-green-400" />,
+    Community: <FaComment className="text-green-400" />,
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center mt-10">
+        <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <p className="text-red-400 text-center mt-6">{error}</p>
+    );
+  }
+
+  if (posts.length === 0) {
+    return (
+      <p className="text-gray-400 text-center mt-6">No posts to display.</p>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 max-w-6xl mx-auto">
       {posts.map((post) => (
         <div
-          key={post.id}
-          className="bg-white p-4 rounded-lg shadow-md mb-4 max-w-3xl mx-auto transform transition duration-300 hover:scale-105 hover:shadow-lg"
+          key={post._id}
+          className="bg-gray-800/50 backdrop-blur-md border border-blue-500/20 rounded-xl shadow-md p-4 transition-transform duration-300 hover:scale-[1.02]"
         >
-          {/* Profile Section */}
-          <div className="flex items-center mb-4">
+          {/* Profile + Meta */}
+          <div className="flex items-center mb-3">
             <img
-              src={post.profilePic}
+              src={post.profileImg || "https://cdn-icons-png.freepik.com/512/4209/4209019.png"}
               alt="Profile"
-              className="w-12 h-12 rounded-full mr-4"
+              className="w-10 h-10 rounded-full mr-3"
             />
             <div>
-              <span className="block font-semibold text-lg">{post.title}</span>
-              <span className="text-sm text-gray-500">@{post.username}</span>
+              <p className="text-white font-semibold">{post.username}</p>
+              <p className="text-xs text-gray-400">@{post.userId}</p>
             </div>
           </div>
 
-          {/* Media Type */}
-          <div className="flex items-center text-sm text-green-500 font-medium mb-2">
-            {mediaTypeIcons[post.mediaType]}
-            <span className="ml-2">{post.mediaType}</span>
+          {/* Type */}
+          <div className="flex items-center text-sm mb-3 text-green-400">
+            {mediaTypeIcons[post.type.charAt(0).toUpperCase() + post.type.slice(1)]}
+            <span className="ml-2">{post.type.charAt(0).toUpperCase() + post.type.slice(1)}</span>
           </div>
 
-          {/* Image Section (if present) */}
-          {post.image && (
-            <div className="mb-4">
+          {/* Image */}
+          {post.imageUrl && (
+            <div className="mb-3">
               <img
-                src={post.image}
-                alt={post.title}
-                className="w-full h-auto rounded-lg"
+                src={post.imageUrl}
+                alt="Post"
+                className="w-full max-h-60 object-cover rounded-lg"
               />
             </div>
           )}
 
-          {/* Content Section */}
-          <div className="mb-4">
-            <p className="text-gray-700">{post.description}</p>
-          </div>
+          {/* Text */}
+          <p className="text-gray-300 mb-4">{post.text}</p>
 
-          {/* Interaction Section (Like, Comment, Share) */}
-          <div className="flex items-center space-x-6 text-gray-600">
-            <div className="flex items-center space-x-1 cursor-pointer hover:text-blue-500 transition duration-300">
+          {/* Actions */}
+          <div className="flex items-center gap-6 text-gray-400 text-sm">
+            <button className="flex items-center gap-1 hover:text-blue-400 transition">
               <FaThumbsUp />
-              <span>Like</span>
-            </div>
-            <div className="flex items-center space-x-1 cursor-pointer hover:text-blue-500 transition duration-300">
+              Like
+            </button>
+            <button className="flex items-center gap-1 hover:text-blue-400 transition">
               <FaComment />
-              <span>Comment</span>
-            </div>
-            <div className="flex items-center space-x-1 cursor-pointer hover:text-blue-500 transition duration-300">
+              Comment
+            </button>
+            <button className="flex items-center gap-1 hover:text-blue-400 transition">
               <FaShare />
-              <span>Share</span>
-            </div>
+              Share
+            </button>
           </div>
         </div>
       ))}
