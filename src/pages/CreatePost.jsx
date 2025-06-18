@@ -30,7 +30,7 @@ const CreatePost = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:4000/api/v1/post/create",
+        `${import.meta.env.VITE_API_URL}/api/v1/post/create`,
         { type, publicDbId, text, imageUrl },
         { headers: { Authorization: `Bearer ${token}` } }
       );

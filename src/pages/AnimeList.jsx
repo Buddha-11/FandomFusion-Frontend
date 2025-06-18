@@ -17,7 +17,7 @@ const AnimeList = () => {
     setError("");
 
     try {
-      const res = await axios.get(`http://localhost:4000/api/v1/list/anime`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/list/anime`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

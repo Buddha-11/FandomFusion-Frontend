@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+
 import {
   FaThumbsUp,
   FaComment,
@@ -20,7 +21,10 @@ const Feed = ({ type = "global" }) => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get(`http://localhost:4000/api/v1/post/${type}`, {
+      console.log("VITE_API_URL =", import.meta.env.VITE_API_URL);
+      console.log(`${import.meta.env.VITE_API_URL}/api/v1/post/${type}`);
+
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/post/${type}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

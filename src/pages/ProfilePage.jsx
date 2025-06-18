@@ -34,7 +34,7 @@ const ProfilePage = () => {
       const token = getAuthToken();
       const userId = getUserId();
       const res = await axios.get(
-        `http://localhost:4000/api/v1/user/getUser/${userId}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/user/getUser/${userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setProfile(res.data.user);
@@ -49,7 +49,7 @@ const ProfilePage = () => {
     try {
       const token = getAuthToken();
       const res = await axios.get(
-        `http://localhost:4000/api/v1/user/friends`,
+        `${import.meta.env.VITE_API_URL}/api/v1/user/friends`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setFriends(res.data.data);
@@ -62,7 +62,7 @@ const ProfilePage = () => {
     try {
       const token = getAuthToken();
       const res = await axios.get(
-        `http://localhost:4000/api/v1/user/friend-requests`,
+        `${import.meta.env.VITE_API_URL}/api/v1/user/friend-requests`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setFriendRequests(res.data.friendRequests);
@@ -79,7 +79,7 @@ const ProfilePage = () => {
       formData.append("email", email);
       if (profileImg) formData.append("profileImg", profileImg);
 
-      await axios.patch(`http://localhost:4000/api/v1/user/profile`, formData, {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/v1/user/profile`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Profile updated successfully");
@@ -94,7 +94,7 @@ const ProfilePage = () => {
   const handleSearch = async () => {
     try {
       const token = getAuthToken();
-      const res = await axios.get(`http://localhost:4000/api/v1/user/search?search=${encodeURIComponent(searchQuery)}`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/search?search=${encodeURIComponent(searchQuery)}`, {
         headers: { Authorization: `Bearer ${token}` },
 });
 
@@ -108,7 +108,7 @@ const ProfilePage = () => {
     try {
       const token = getAuthToken();
       await axios.post(
-        `http://localhost:4000/api/v1/user/friend-requests`,
+        `${import.meta.env.VITE_API_URL}/api/v1/user/friend-requests`,
         { recipientUserName: username },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -123,7 +123,7 @@ const ProfilePage = () => {
     try {
       const token = getAuthToken();
       await axios.post(
-        `http://localhost:4000/api/v1/user/friend-requests/respond`,
+        `${import.meta.env.VITE_API_URL}/api/v1/user/friend-requests/respond`,
         { username, action },
         { headers: { Authorization: `Bearer ${token}` } }
       );

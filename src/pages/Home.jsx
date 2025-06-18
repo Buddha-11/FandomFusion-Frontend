@@ -16,7 +16,7 @@ const Home = () => {
       <Header toggleSidebar={toggleSidebar} />
 
       {/* ✅ Sidebar + Content Wrapper */}
-      <div className="flex flex-grow relative">
+      <div className="pt-10 flex flex-grow relative">
         {/* Mobile Sidebar with slide-in */}
         <AnimatePresence>
           {isSidebarOpen && (
@@ -25,7 +25,7 @@ const Home = () => {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-16 left-0 z-50 w-64 bg-gray-800/90 backdrop-blur border-r border-blue-500/30 min-h-screen md:hidden"
+              className=" fixed top-16 left-0 z-50 w-64 bg-gray-800/90 backdrop-blur border-r border-blue-500/30 min-h-screen md:hidden"
             >
               <Sidebar />
             </motion.div>

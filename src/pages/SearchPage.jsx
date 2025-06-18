@@ -46,7 +46,7 @@ const SearchPage = () => {
     }
 
     const type = activeSection.toLowerCase();
-    const endpoint = `http://localhost:4000/api/v1/list/${type}/add`;
+    const endpoint = `${import.meta.env.VITE_API_URL}/api/v1/list/${type}/add`;
 
     try {
       const payload = {
@@ -95,8 +95,8 @@ const SearchPage = () => {
     try {
       const baseEndpoint =
         activeSection.toLowerCase() === "anime"
-          ? `http://localhost:4000/api/v1/media/${activeSection.toLowerCase()}/search?q=${encodeURIComponent(query)}`
-          : `http://localhost:4000/api/v1/media/${activeSection.toLowerCase()}/search?search=${encodeURIComponent(query)}`;
+          ? `${import.meta.env.VITE_API_URL}/api/v1/media/${activeSection.toLowerCase()}/search?q=${encodeURIComponent(query)}`
+          : `${import.meta.env.VITE_API_URL}/api/v1/media/${activeSection.toLowerCase()}/search?search=${encodeURIComponent(query)}`;
 
       const response = await axios.get(baseEndpoint, {
         headers: { Authorization: `Bearer ${AUTH_TOKEN}` },

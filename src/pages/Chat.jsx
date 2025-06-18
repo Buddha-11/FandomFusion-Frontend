@@ -15,7 +15,7 @@ const Chat = () => {
   // ✅ 1) Fetch contacts
   const fetchContacts = async () => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/v1/user/friends`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/user/friends`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setContacts(res.data.data);
@@ -28,7 +28,7 @@ const Chat = () => {
   const fetchMessages = async (contact) => {
     try {
       const res = await axios.get(
-        `http://localhost:4000/api/v1/chat/history?recipientId=${contact._id}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/chat/history?recipientId=${contact._id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMessages(res.data.messages);
@@ -41,7 +41,7 @@ const Chat = () => {
   const handleSend = async (content) => {
     try {
       const res = await axios.post(
-        `http://localhost:4000/api/v1/chat/send`,
+        `${import.meta.env.VITE_API_URL}/api/v1/chat/send`,
         { recipientId: activeContact._id, content },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -5,7 +5,7 @@ import { FaHome, FaFilm, FaGamepad, FaUserAlt,FaSearch,FaComments } from 'react-
 
 const Sidebar = () => {
   return (
-    <div className="fixed pt-10 bg-gray-800 text-white w-64 p-4 space-y-4 ">
+    <div className="fixed  bg-gray-800 text-white w-64 p-4 space-y-4 ">
       <ul className="space-y-4">
         <li>
           <Link to="/" className="flex items-center space-x-2 hover:bg-blue-600 p-2 rounded">
